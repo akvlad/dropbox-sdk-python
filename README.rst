@@ -70,7 +70,7 @@ This fork provides a possibility to download a part of file from Dropbox:
 
 .. code-block:: python
 
-    dbx.files_download("/my_huge_file.txt", start=0, end=5) #this downloads first 5 bytes of /my_huge_file.txt ((0; 5] span)
+    dbx.files_download("/my_huge_file.txt", start=0, end=5) #this downloads first 5 bytes of /my_huge_file.txt ([0; 5) span)
 
 .. _logo: {logo_link}
 .. _repo: https://github.com/dropbox/dropbox-sdk-python
