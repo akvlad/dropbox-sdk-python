@@ -62,6 +62,15 @@ License
 
 This SDK is distributed under the MIT license, please see `LICENSE`_ for more information.
 
+
+Difference between this fork and the original repo
+=======
+
+This fork provides a possibility to download a part of file from Dropbox:
+
+.. code-block:: python
+    dbx.files_download("/my_huge_file.txt", start=0, end=5) #this downloads first 5 bytes of /my_huge_file.txt ((0; 5] span)
+
 .. _logo: {logo_link}
 .. _repo: https://github.com/dropbox/dropbox-sdk-python
 .. _`Read The Docs`: http://dropbox-sdk-python.readthedocs.org
@@ -71,3 +80,4 @@ This SDK is distributed under the MIT license, please see `LICENSE`_ for more in
 .. _Developer Console: https://dropbox.com/developers/apps
 .. _OAuth Guide: https://www.dropbox.com/lp/developers/reference/oauth-guide
 .. _`Dropbox Support`: https://www.dropbox.com/developers/contact
+

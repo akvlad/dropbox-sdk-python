@@ -32,7 +32,7 @@ class DropboxBase(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def request(self, route, namespace, arg, arg_binary=None):
+    def request(self, route, namespace, arg, arg_binary=None, extra_params=None):
         pass
 
     # ------------------------------------------
@@ -1397,7 +1397,9 @@ class DropboxBase(object):
 
     def files_download(self,
                        path,
-                       rev=None):
+                       rev=None,
+                       start=None,
+                       end=None):
         """
         Download a file from a user's Dropbox.
 
@@ -1406,6 +1408,8 @@ class DropboxBase(object):
 
         :param str path: The path of the file to download.
         :param Nullable[str] rev: Please specify revision in ``path`` instead.
+        :param Nullable[int] start: first byte index to download
+        :param Nullable[int] end: byte after last to download  [start, end) piece of file
         :rtype: (:class:`dropbox.files.FileMetadata`,
                  :class:`requests.models.Response`)
         :raises: :class:`.exceptions.ApiError`
@@ -1426,6 +1430,7 @@ class DropboxBase(object):
             'files',
             arg,
             None,
+            extra_params=RequestExtraParams(start, end)
         )
         return r
 
@@ -5859,4 +5864,15 @@ class DropboxBase(object):
             None,
         )
         return r
+
+
+class RequestExtraParams(object):
+
+    def __init__(self, start=None, end=None):
+        """
+        :param int Optional[start]: first byte of file to download
+        :param int Optional[end]: last byte of file to download
+        """
+        self.start = start
+        self.end = end
 

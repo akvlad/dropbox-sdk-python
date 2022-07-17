@@ -29,7 +29,7 @@ from dropbox.common import (
     PathRoot_validator,
     PathRootError_validator
 )
-from dropbox.base import DropboxBase
+from dropbox.base import DropboxBase, RequestExtraParams
 from dropbox.base_team import DropboxTeamBase
 from dropbox.exceptions import (
     ApiError,
@@ -278,7 +278,8 @@ class _DropboxTransport(object):
                 namespace,
                 request_arg,
                 request_binary,
-                timeout=None):
+                timeout=None,
+                extra_params=None):
         """
         Makes a request to the Dropbox API and in the process validates that
         the route argument and result are the expected data types. The
@@ -298,6 +299,7 @@ class _DropboxTransport(object):
             server. After the timeout the client will give up on
             connection. If `None`, will use default timeout set on
             Dropbox object.  Defaults to `None`.
+        :param Optional[RequestExtraParams] extra_params: optional extra parameters for request
         :return: The route's result.
         """
 
@@ -329,7 +331,8 @@ class _DropboxTransport(object):
                                                   serialized_arg,
                                                   auth_type,
                                                   request_binary,
-                                                  timeout=timeout)
+                                                  timeout=timeout,
+                                                  extra_params=extra_params)
         decoded_obj_result = json.loads(res.obj_result)
         if isinstance(res, RouteResult):
             returned_data_type = route.result_type
@@ -460,7 +463,8 @@ class _DropboxTransport(object):
                                        request_json_arg,
                                        auth_type,
                                        request_binary,
-                                       timeout=None):
+                                       timeout=None,
+                                       extra_params=None):
         """
         See :meth:`request_json_object` for description of parameters.
 
@@ -479,7 +483,8 @@ class _DropboxTransport(object):
                                                 request_json_arg,
                                                 auth_type,
                                                 request_binary,
-                                                timeout=timeout)
+                                                timeout=timeout,
+                                                extra_params=extra_params)
             except AuthError as e:
                 if e.error and e.error.is_expired_access_token():
                     if has_refreshed:
@@ -522,7 +527,8 @@ class _DropboxTransport(object):
                             request_json_arg,
                             auth_type,
                             request_binary,
-                            timeout=None):
+                            timeout=None,
+                            extra_params=None):
         """
         See :meth:`request_json_string_with_retry` for description of
         parameters.
@@ -570,11 +576,17 @@ class _DropboxTransport(object):
         # the HTTP response.
         stream = False
 
+        extra_params = extra_params if extra_params is not None else RequestExtraParams()
+
         if route_style == self._ROUTE_STYLE_RPC:
             headers['Content-Type'] = 'application/json'
             body = request_json_arg
         elif route_style == self._ROUTE_STYLE_DOWNLOAD:
             headers['Dropbox-API-Arg'] = request_json_arg
+            if extra_params.start is not None or extra_params.end is not None:
+                start = "" if extra_params.start is None else "%d" % extra_params.start
+                end = "" if extra_params.end is None else "%d" % (extra_params.end - 1)
+                headers['Range'] = "bytes=%s-%s" % (start, end)
             stream = True
         elif route_style == self._ROUTE_STYLE_UPLOAD:
             headers['Content-Type'] = 'application/octet-stream'
